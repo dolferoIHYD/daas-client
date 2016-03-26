@@ -13,32 +13,55 @@
 
 		
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script src="http://192.168.1.193:8000/scripts/sockjs-0.3.4.min.js"></script>
+		<script src="http://192.168.1.193:8000/scripts/vertxbus.js"></script>
+
+		<title>Courier's list</title>
 
 		
-		<title>Courier's list</title>
+		<script>
+
+   		var eb = new vertx.EventBus("http://52.90.78.153:8080/eventbus");
+   		eb.onopen = function () {
+       		console.log("opening the socket");
+       		eb.registerHandler("order.action", function (msg) {
+           		console.log("recieving the message " + msg.status + msg.id);
+           		console.log(JSON.stringify(msg));
+           		var object = $("<li class='mdl-list__item mdl-list__item--two-line listyl' data-order-id='"+msg.id+"'><span class='mdl-list__item-primary-content'><i class='material-icons' id='icon'>location_on</i><span>"+msg.from+"</span><span class='mdl-list__item-sub-title'>    Статус: "+msg.status+"</span></span></li>");
+           		switch(msg.status) {
+           			case "pending":
+           				object[0].setAttribute("onclick", "location.href='someDeliver.html'");
+           				object[0].setAttribute("id", "pending'");
+           				$("ul").prepend(object);
+           				break;			
+						 default:
+							object[0].setAttribute("id", "not-pending");
+							$(object[0]).removeClass("listyl");
+							$("li[data-order-id='"+msg.id+"']").replaceWith(object[0]);
+
+							break;           		
+           		}
+       		});
+   		};
+   		
+   		eb.onclose = function () {
+       	console.log("closing socket");
+       	eb = null;
+  			};
+		</script>		
 		
-		<script type="text/javascript" >
 		
-		function new() {
-			
-		
-			var deliverType = "Сказки";
-			
-			$("<li/>", {
-				"class": "mdl-list__item mdl-list__item--two-line",
-				"<span/>", {
-				text: deliverType;
-				click: function () {
-					$(this).html('Gotit');
-				}			
-				}
-			
-				}).appendTo(".mdl-list");
-			
-			}							
-		</script>
 		
 		<style>
+		
+			.mdl-list__item-sub-title {
+				color: inherit;			
+			}
+			
+			 .listyl .mdl-list__item-sub-title{
+					color: black;			 
+			 }
+			
 			.demo-list-two {
   				width: 300px;
 			}
@@ -49,6 +72,14 @@
     			width: 100%;
     			text-decoration: none;
 			}
+			
+			#not-pending{
+				color: grey;			
+			}
+			
+			#pending{
+				color: black;			
+			}
 		</style>
 	</head>
 	<body>
@@ -57,19 +88,14 @@
 			<header class="mdl-layout__header">
 				<div class="mdl-layout__header-row">
 					<!-- Title -->
-					<span class="mdl-layout-title" align="center">Couriers's list</span>
+					<span class="mdl-layout-title" align="center">Заказы</span>
 					<!-- Add spacer, to align navigation to the right -->
 					<div class="mdl-layout-spacer"></div>
-					<!-- Navigation. We hide it in small screens. -->
-					<nav class="mdl-navigation mdl-layout--large-screen-only">
-						<a class="mdl-navigation__link" href="">Link</a>
-						
-					</nav>
 				</div>
 			</header>
 			
 		<ul class="demo-list-two mdl-list">
-  			<li class="mdl-list__item mdl-list__item--two-line">
+  		<!--	<li class="mdl-list__item mdl-list__item--two-line">
     			<span class="mdl-list__item-primary-content">
       			<i class="material-icons mdl-list__item-avatar">person</i>
       			<span>
@@ -92,6 +118,9 @@
       			<span class="mdl-list__item-sub-title">Good rated</span>
     			</span>
   			</li>
+-				-->
 		</ul>
+		
+		
 	</body>
 </html>
