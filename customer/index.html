@@ -36,6 +36,7 @@
         console.log("Submitting order", order);
         eb.send("order.create", order, function (msg) {
           console.log("cool " + msg);
+          location.href = 'third.html';
         }, function (msg) {
           console.log("not cool " + msg);
         });
@@ -66,7 +67,7 @@
         </div>
         <!-- Colored raised button -->
         <div style="padding: 10px">
-          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" style="height: 48px; width: 100%;" onclick="location.href='third.html'; submitNewOrder();">
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" style="height: 48px; width: 100%;" onclick="submitNewOrder();">
             Сделать заказ
           </button>
         </div>
