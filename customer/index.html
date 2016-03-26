@@ -11,15 +11,27 @@
     <script src="/scripts/sockjs-0.3.4.min.js"></script>
     <script src="/scripts/vertxbus.js"></script>
     <script type="text/javascript">
-      var eb = new vertx.EventBus("http://52.90.78.153:8080/eventbus");
-      eb.onopen = function () {
-        console.log("opening the socket");
-      };
-   
-      eb.onclose = function () {
-        console.log("closing socket");
-        eb = null;
-      };
+      var connectToEventBus = function() {
+        console.log("connecting to eventbus");
+        var eb = new vertx.EventBus("http://52.90.78.153:8080/eventbus");
+
+        if (eb) {
+          eb.onopen = function () {
+            console.log("opening the socket");
+          };
+       
+          eb.onclose = function () {
+            console.log("closing socket");
+            window.eb = null;
+
+            setTimeout(connectToEventBus, 5000);
+          }; 
+
+          window.eb = eb;
+        } 
+      }
+
+      connectToEventBus();
 
       function getFieldValue(field) {
         var element = document.getElementById(field); 
@@ -34,18 +46,59 @@
         var order = {from: fromValue, to: toValue, comment: commentValue};
 
         console.log("Submitting order", order);
-        eb.send("order.create", order, function (msg) {
-          console.log("cool " + msg);
-          location.href = 'third.html';
-        }, function (msg) {
-          console.log("not cool " + msg);
+        eb && eb.send("order.create", order, function (order) {
+          console.log("Order created ", order);
+          $(".new-order").hide();
+          $(".waiting-for-courier").css({'display': 'flex'});
+
+          console.log("order.realtime.specific." + order.id);
+
+          eb.registerHandler("order.realtime.specific." + order.id, function(driver) {
+            console.log("Driver responded", driver);
+            $(".courier-status-waiting").hide();
+            $(".courier-status-enroute").show();
+          });
+        }, function (error) {
+          console.log("Failed to create order", error);
         });
       }
     </script>
+    <style>
+      .waiting-for-courier {
+        display: none;
+      }
+
+      .courier-status-enroute {
+        display: none;
+      }
+
+      .waiting-for-courier .mdl-mini-footer {
+        position: absolute;
+        bottom: 0;
+        background-color: rgb(63,81,181);
+        color: white;
+        width: 100%;
+      }
+
+      .waiting-for-courier .mdl-mini-footer {
+        position: absolute;
+        bottom: 0;
+        background-color: rgb(63,81,181);
+        color: white;
+        width: 100%;
+        box-sizing: border-box;   
+      }
+
+      .waiting-for-courier .mdl-mini-footer__middle-section{
+        width: 100%;
+        text-align: center;
+        font-size: 1.5em;
+      }
+    </style>
   </head>
   <body>
     <!-- Always shows a header, even in smaller screens. -->
-    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header new-order">
       <header class="mdl-layout__header">
         <div class="mdl-layout__header-row">
           <!-- Title -->
@@ -72,6 +125,27 @@
           </button>
         </div>
       </main>
+    </div>
+
+    <!-- Always shows a header, even in smaller screens. -->
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header waiting-for-courier">
+      <header class="mdl-layout__header">
+        <div class="mdl-layout__header-row">
+          <!-- Title -->
+          <span class="mdl-layout-title" align="center">Ожидание курьера</span>
+        </div>
+      </header>
+      <main class="mdl-layout__content">
+        <div class="courier-status-waiting">
+          <div class="mdl-spinner mdl-js-spinner is-active"></div>
+        </div>
+      </main>
+      <footer class="mdl-mini-footer">
+        <div class="mdl-mini-footer__middle-section">
+          <span class="courier-status-waiting">Подождите, идет поиск курьера.</span>
+          <span class="courier-status-enroute">Курьер в пути</span>
+        </div>
+      </footer>
     </div>
   </body>
 </html>
