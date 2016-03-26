@@ -11,6 +11,8 @@
     <script src="/scripts/sockjs-0.3.4.min.js"></script>
     <script src="/scripts/vertxbus.js"></script>
     <script type="text/javascript">
+      var lastOrder = null;
+
       var connectToEventBus = function() {
         console.log("connecting to eventbus");
         var eb = new vertx.EventBus("http://52.90.78.153:8080/eventbus");
@@ -38,6 +40,39 @@
         return element ? element.value : "";
       }
 
+      function orderStatusUpdateHandler(order) {
+        console.log("Driver responded", order);
+
+        lastOrder = order;
+        
+        switch (order.status) {
+          case "captured":
+            $(".courier-status-list li.courier-status-captured").removeClass("in-progress");
+            $(".courier-status-list li.courier-status-captured").addClass("completed");
+            $(".courier-status-list li.courier-status-enroute").addClass("in-progress");
+            break;
+          case "enroute":
+            $(".courier-status-list li.courier-status-enroute").removeClass("in-progress");
+            $(".courier-status-list li.courier-status-enroute").addClass("completed");
+            $(".courier-status-list li.courier-status-pickedup").addClass("in-progress");
+            break;
+          case "pickedup":
+            $(".courier-status-list li.courier-status-pickedup").removeClass("in-progress");
+            $(".courier-status-list li.courier-status-pickedup").addClass("completed");
+            $(".courier-status-list li.courier-status-delivering").addClass("in-progress");
+            break;
+          case "delivering":
+            $(".courier-status-list li.courier-status-delivering").removeClass("in-progress");
+            $(".courier-status-list li.courier-status-delivering").addClass("completed");
+            $(".courier-status-list li.courier-status-delivered").addClass("in-progress");
+            break;
+          case "delivered":
+            $(".courier-status-list li.courier-status-delivered").removeClass("in-progress");
+            $(".courier-status-list li.courier-status-delivered").addClass("completed");
+            break;
+        }
+      }
+
       function submitNewOrder() {
         var fromValue = getFieldValue("fromField");
         var toValue = getFieldValue("toField");
@@ -48,44 +83,36 @@
         console.log("Submitting order", order);
         eb && eb.send("order.create", order, function (order) {
           console.log("Order created ", order);
+
+          lastOrder = order;
+
           $(".new-order").hide();
           $(".waiting-for-courier").css({'display': 'flex'});
 
           console.log("order.realtime.specific." + order.id);
 
-          eb.registerHandler("order.realtime.specific." + order.id, function(order) {
-            console.log("Driver responded", order);
-            
-            switch (order.status) {
-              case "captured":
-                $(".courier-status-list li.courier-status-captured").removeClass("in-progress");
-                $(".courier-status-list li.courier-status-captured").addClass("completed");
-                $(".courier-status-list li.courier-status-enroute").addClass("in-progress");
-                break;
-              case "enroute":
-                $(".courier-status-list li.courier-status-enroute").removeClass("in-progress");
-                $(".courier-status-list li.courier-status-enroute").addClass("completed");
-                $(".courier-status-list li.courier-status-pickedup").addClass("in-progress");
-                break;
-              case "pickedup":
-                $(".courier-status-list li.courier-status-pickedup").removeClass("in-progress");
-                $(".courier-status-list li.courier-status-pickedup").addClass("completed");
-                $(".courier-status-list li.courier-status-delivering").addClass("in-progress");
-                break;
-              case "delivering":
-                $(".courier-status-list li.courier-status-delivering").removeClass("in-progress");
-                $(".courier-status-list li.courier-status-delivering").addClass("completed");
-                $(".courier-status-list li.courier-status-delivered").addClass("in-progress");
-                break;
-              case "delivered":
-                $(".courier-status-list li.courier-status-delivered").removeClass("in-progress");
-                $(".courier-status-list li.courier-status-delivered").addClass("completed");
-                break;
-            }
-          });
+          eb.registerHandler("order.realtime.specific." + order.id, orderStatusUpdateHandler);
         }, function (error) {
           console.log("Failed to create order", error);
         });
+      }
+
+      function backToOrderForm() {
+        console.log("Returning to order form");
+
+        $(".waiting-for-courier").hide();
+        $(".waiting-for-courier .courier-status-list .mdl-list__item").removeClass("completed in-progress");
+        $(".waiting-for-courier .courier-status-list .mdl-list__item.courier-status-pending").addClass("completed");
+        $(".waiting-for-courier .courier-status-list .mdl-list__item.courier-status-captured").addClass("in-progress");
+
+        if (lastOrder && lastOrder.id) {
+          eb.unregisterHandler("order.realtime.specific." + lastOrder.id, orderStatusUpdateHandler);
+        }
+
+        $("#fromField").val("");
+        $("#toField").val("");
+        $("#commentField").val("");
+        $(".new-order").css({'display': 'flex'});
       }
     </script>
     <style>
@@ -175,6 +202,7 @@
     <!-- Always shows a header, even in smaller screens. -->
     <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header waiting-for-courier">
       <header class="mdl-layout__header">
+        <div class="mdl-layout-icon" onclick="backToOrderForm();"><i class="material-icons" style="font-size: 2.4em">navigate_before</i></div>
         <div class="mdl-layout__header-row">
           <!-- Title -->
           <span class="mdl-layout-title" align="center">Ожидание курьера</span>
