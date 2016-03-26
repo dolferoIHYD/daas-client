@@ -13,8 +13,8 @@
 
 		
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-		<script src="http://192.168.1.193:8000/scripts/sockjs-0.3.4.min.js"></script>
-		<script src="http://192.168.1.193:8000/scripts/vertxbus.js"></script>
+		<script src="/scripts/sockjs-0.3.4.min.js"></script>
+		<script src="/scripts/vertxbus.js"></script>
 
 		<title>Courier's list</title>
 
@@ -24,10 +24,10 @@
    		var eb = new vertx.EventBus("http://52.90.78.153:8080/eventbus");
    		eb.onopen = function () {
        		console.log("opening the socket");
-       		eb.registerHandler("order.action", function (msg) {
+       		eb.registerHandler("order.realtime", function (msg) {
            		console.log("recieving the message " + msg.status + msg.id);
            		console.log(JSON.stringify(msg));
-           		var object = $("<li class='mdl-list__item mdl-list__item--two-line listyl' data-order-id='"+msg.id+"'><span class='mdl-list__item-primary-content'><i class='material-icons' id='icon'>location_on</i><span>"+msg.from+"</span><span class='mdl-list__item-sub-title'>    Статус: "+msg.status+"</span></span></li>");
+           		var object = $("<li class='mdl-list__item mdl-list__item--two-line listyl' data-order-id='"+msg.id+"'><span class='mdl-list__item-primary-content'><i class='material-icons' id='icon'>location_on</i><span>"+msg.from+"</span><span class='mdl-list__item-sub-title'>"+"     \tСтатус: "+msg.status+"</span></span></li>");         		
            		switch(msg.status) {
            			case "pending":
            				object[0].setAttribute("onclick", "location.href='someDeliver.html'");
