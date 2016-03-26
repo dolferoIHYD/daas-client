@@ -1,0 +1,176 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      #map {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        top: 0;
+        left: 0;
+      } 
+    </style>
+    <script>
+      var map;
+      var icon = "https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678111-map-marker-32.png";
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          mapTypeControl: false,
+          zoomControl: false,
+          streetViewControl: false,
+          center: {lat: 59.98054607, lng: 30.2303462},
+          zoom: 8
+        });
+        
+        var markers = [
+          {lat: 59.98054607, lng: 30.2303462},
+          {lat: 59.85217253, lng: 30.56246355},
+          {lat: 60.04652059, lng: 30.11213816},
+          {lat: 59.98747895, lng: 30.32591563},
+          {lat: 59.85112865, lng: 30.3710506},
+          {lat: 60.03146826, lng: 30.40756342},
+          {lat: 59.90291361, lng: 30.64338078},
+          {lat: 59.97445541, lng: 30.05165854},
+          {lat: 60.01376671, lng: 30.22637828},
+          {lat: 60.04791606, lng: 30.10018563},
+          {lat: 59.91395547, lng: 30.63566337},
+          {lat: 59.92104371, lng: 30.64181807},
+          {lat: 60.05434904, lng: 30.15624711},
+          {lat: 60.07015178, lng: 30.49094889},
+          {lat: 59.94805378, lng: 30.3414331},
+          {lat: 59.98452513, lng: 30.07172326},
+          {lat: 59.81973577, lng: 30.60808647},
+          {lat: 59.9212749,  lng: 30.27726197},
+          {lat: 60.00969181, lng: 30.16274989},
+          {lat: 59.84508698, lng: 30.40321658},
+          {lat: 59.85314152, lng: 30.12854931},
+          {lat: 59.950009,   lng: 30.05733132},
+          {lat: 59.79916363, lng: 30.41460322},
+          {lat: 60.03342934, lng: 30.15954358},
+          {lat: 59.84707532, lng: 30.47695427},
+          {lat: 59.91292942, lng: 30.50487922},
+          {lat: 59.93150119, lng: 30.17568251},
+          {lat: 59.90583929, lng: 30.50725595},
+          {lat: 59.89666134, lng: 30.38858601},
+          {lat: 59.93257916, lng: 30.30247893},
+          {lat: 59.83073128, lng: 30.48378004},
+          {lat: 60.02901129, lng: 30.54918073},
+          {lat: 59.89770626, lng: 30.11081909},
+          {lat: 59.8421393,  lng: 30.53454179},
+          {lat: 59.91385135, lng: 30.36511972},
+          {lat: 60.00003152, lng: 30.10006304},
+          {lat: 59.78466721, lng: 30.48386622},
+          {lat: 59.82327099, lng: 30.08550798},
+          {lat: 59.82583764, lng: 30.58601672},
+          {lat: 60.04401685, lng: 30.48083561},
+          {lat: 59.95359583, lng: 29.99970264},
+          {lat: 60.02110788, lng: 30.53534852},
+          {lat: 59.83083103, lng: 30.32668427},
+          {lat: 59.97868838, lng: 30.57313589},
+          {lat: 59.96871014, lng: 30.47881595},
+          {lat: 59.93703482, lng: 30.16434993},
+          {lat: 59.80982505, lng: 30.32274978},
+          {lat: 59.98112628, lng: 30.05079357},
+          {lat: 60.05620031, lng: 30.22621957},
+          {lat: 60.03203498, lng: 30.21635295},
+          {lat: 60.0147024,  lng: 30.42783281},
+          {lat: 59.92322103, lng: 29.9784763},
+          {lat: 59.91732038, lng: 30.55687445},
+          {lat: 60.04287461, lng: 30.56049314},
+          {lat: 59.93463737, lng: 30.63594094},
+          {lat: 60.103088,   lng: 30.43353342},
+          {lat: 59.92589968, lng: 30.43370023},
+          {lat: 59.82516076, lng: 30.27867399},
+          {lat: 59.91052475, lng: 30.32517025},
+          {lat: 59.78859139, lng: 30.3142693},
+          {lat: 59.79927884, lng: 30.43400168},
+          {lat: 60.07441532, lng: 30.21909268},
+          {lat: 59.79809286, lng: 30.3972216},
+          {lat: 59.99024877, lng: 30.13062121},
+          {lat: 59.8668459,  lng: 30.21169107},
+          {lat: 60.01569814, lng: 30.03374584},
+          {lat: 59.82914195, lng: 30.60702457},
+          {lat: 59.99733837, lng: 30.32916638},
+          {lat: 59.97822921, lng: 30.11702091},
+          {lat: 59.93744201, lng: 30.321948},
+          {lat: 59.91261353, lng: 30.31216279},
+          {lat: 59.94836569, lng: 30.18081929},
+          {lat: 59.90263491, lng: 30.09353713},
+          {lat: 59.80546889, lng: 30.39983462},
+          {lat: 60.04287674, lng: 30.10809778},
+          {lat: 59.99648242, lng: 30.14587934},
+          {lat: 59.99475874, lng: 30.50116778},
+          {lat: 60.05651032, lng: 30.32029662},
+          {lat: 59.96193844, lng: 30.0401959},
+          {lat: 59.96364869, lng: 30.5033592},
+          {lat: 59.90269963, lng: 30.54583371},
+          {lat: 59.78138859, lng: 30.33748632},
+          {lat: 59.89997625, lng: 30.09149332},
+          {lat: 60.05728512, lng: 30.56115752},
+          {lat: 60.00504661, lng: 30.39314067},
+          {lat: 59.88048343, lng: 30.17228789},
+          {lat: 60.00662739, lng: 30.22358568},
+          {lat: 59.79270053, lng: 30.36560926},
+          {lat: 59.86400784, lng: 30.32509382},
+          {lat: 59.85553841, lng: 30.25783993},
+          {lat: 59.95794089, lng: 30.1413909},
+          {lat: 59.90510323, lng: 30.02607997},
+          {lat: 59.99746134, lng: 30.46296265},
+          {lat: 60.08377739, lng: 30.45615649},
+          {lat: 59.99316901, lng: 30.24038052},
+          {lat: 59.8803818,  lng: 30.12642766},
+          {lat: 59.90748365, lng: 30.47693746},
+          {lat: 59.85040457, lng: 30.3019988},
+          {lat: 59.80752368, lng: 30.52881777},
+          {lat: 60.00630185, lng: 30.07270449}];
+        
+          for (var i = 0; i < markers.length; i++) {
+            new google.maps.Marker({
+              position: markers[i],
+              map: map,
+              icon: icon
+            });  
+          }   
+      }
+    </script>
+    <!-- Material Design Lite -->
+    <script src="https://code.getmdl.io/1.1.3/material.min.js"></script>
+    <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.indigo-pink.min.css">
+    <!-- Material Design icon font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCBVImb4yfgpPtG2SvErICSeGHvG41ZZ58&callback=initMap" async defer></script>
+  </head>
+  <body>
+    <!-- Always shows a header, even in smaller screens. -->
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+      <header class="mdl-layout__header">
+        <div class="mdl-layout__header-row">
+          <!-- Title -->
+          <span class="mdl-layout-title">Title</span>
+          <!-- Add spacer, to align navigation to the right -->
+          <div class="mdl-layout-spacer"></div>
+          <!-- Navigation. We hide it in small screens. -->
+          <nav class="mdl-navigation mdl-layout--large-screen-only">
+            <a class="mdl-navigation__link" href="">Link</a>
+            <a class="mdl-navigation__link" href="">Link</a>
+            <a class="mdl-navigation__link" href="">Link</a>
+            <a class="mdl-navigation__link" href="">Link</a>
+          </nav>
+        </div>
+      </header>
+      <div class="mdl-layout__drawer">
+        <span class="mdl-layout-title">Title</span>
+        <nav class="mdl-navigation">
+          <a class="mdl-navigation__link" href="">Link</a>
+          <a class="mdl-navigation__link" href="">Link</a>
+          <a class="mdl-navigation__link" href="">Link</a>
+          <a class="mdl-navigation__link" href="">Link</a>
+        </nav>
+      </div>
+      <main class="mdl-layout__content">
+        <div id="map" class="page-content">
+        </div>
+      </main>
+    </div>
+  </body>
+</html>
