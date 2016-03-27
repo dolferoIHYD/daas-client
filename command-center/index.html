@@ -325,7 +325,7 @@
           var colorStyles = ["red", "orange"];
 
           var overlays = [];
-
+/*
           setInterval(function() {
             if (overlays.length > addIndex) {
               overlays[addIndex].map = null;
@@ -345,7 +345,7 @@
               addIndex = 0;
             }
           }, 1000);
-
+*/
           var realtimeOverlays = [];
           var realtimeIndex = 0;
 
@@ -371,11 +371,13 @@
           }
 
           connectToEventBus(function(eb) {
-            eb.registerHandler("order.realtime", function (msg) {
+            eb.registerHandler("order.realtime", function (order) {
               console.log("recieving the message ");
               var index = (Math.random() * 100) | 0;
 
-              var overlay = new AnimatedOverlay(map, new google.maps.LatLng(markers[index].lat, markers[index].lng), "green");
+              var color = order.status == "pending" ? "green" : "red";
+
+              var overlay = new AnimatedOverlay(map, new google.maps.LatLng(markers[index].lat, markers[index].lng), color);
 
               if (realtimeOverlays[realtimeIndex]) {
                 realtimeOverlays[realtimeIndex].map = null;
