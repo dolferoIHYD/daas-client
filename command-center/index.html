@@ -114,8 +114,6 @@
 
         map = new google.maps.Map(document.getElementById('map'), {
           mapTypeControl: false,
-          zoomControl: false,
-          streetViewControl: false,
           center: {lat: 59.98054607, lng: 30.2303462},
           zoom: 10
         });
@@ -325,7 +323,7 @@
           var colorStyles = ["red", "orange"];
 
           var overlays = [];
-/*
+
           setInterval(function() {
             if (overlays.length > addIndex) {
               overlays[addIndex].map = null;
@@ -345,7 +343,7 @@
               addIndex = 0;
             }
           }, 1000);
-*/
+
           var realtimeOverlays = [];
           var realtimeIndex = 0;
 
