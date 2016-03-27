@@ -1,0 +1,414 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      #map {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        top: 0;
+        left: 0;
+      } 
+
+      .red {
+        border: 5px solid #C62828;  
+      }
+
+      .orange {
+        border: 5px solid #EF6C00;  
+      }
+
+      .green {
+        border: 5px solid #2E7D32;
+      }
+
+      .circle
+      {
+        position: absolute;
+        width: 32px;
+        height: 32px;
+        -left: 50%;
+        -top: 50%;
+        -webkit-transform: translate(-50%, -50%);
+           -moz-transform: translate(-50%, -50%);
+            -ms-transform: translate(-50%, -50%);
+             -o-transform: translate(-50%, -50%);
+                transform: translate(-50%, -50%);
+
+        background: transparent;
+        opacity: 0.0;
+        border-radius: 50%;
+        -border: 5px solid #EF5350;
+        box-sizing: border-box;
+
+        -webkit-animation: concentric_circles 5s ease-out 1s;
+           -moz-animation: concentric_circles 5s ease-out 1s;
+            -ms-animation: concentric_circles 5s ease-out 1s;
+             -o-animation: concentric_circles 5s ease-out 1s;
+                animation: concentric_circles 5s ease-out 1s;
+      }
+
+      @-webkit-keyframes concentric_circles
+      {
+        0% {width: 8px; height: 8px; opacity: 0.0;} 25% {opacity: 0.85;} 100%{width: 96px; height: 96px; opacity: 0.0;}
+      }
+      @-moz-keyframes concentric_circles
+      {
+        0% {width: 8px; height: 8px; opacity: 0.0;} 25% {opacity: 0.85;} 100%{width: 96px; height: 96px; opacity: 0.0;}
+      }
+      @-ms-keyframes concentric_circles
+      {
+        0% {width: 8px; height: 8px; opacity: 0.0;} 25% {opacity: 0.85;} 100%{width: 96px; height: 96px; opacity: 0.0;}
+      }
+      @-o-keyframes concentric_circles
+      {
+        0% {width: 8px; height: 8px; opacity: 0.0;} 25% {opacity: 0.85;} 100%{width: 96px; height: 96px; opacity: 0.0;}
+      }
+      @keyframes concentric_circles
+      {
+        0% {width: 8px; height: 8px; opacity: 0.0;} 25% {opacity: 0.85;} 100%{width: 96px; height: 96px; opacity: 0.0;}
+      }
+    </style>
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/sockjs-0.3.4.min.js"></script>
+    <script src="scripts/vertxbus.js"></script>
+    <script>
+      var map;
+      var icon = "https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678111-map-marker-32.png";
+
+      function initMap() {
+        AnimatedOverlay.prototype = new google.maps.OverlayView();
+        function AnimatedOverlay(map, latLng, className) {
+          this.latLng = latLng;
+          this.className = className || "";
+          this.div = null;
+          this.setMap(map);
+        };
+
+        AnimatedOverlay.prototype.onAdd = function() {
+          var div = document.createElement("div");
+          div.className = "circle " + this.className;
+          div.style.position = "absolute";
+          div.style.width = "32px";
+          div.style.height = "32px";
+
+          this.div = div;
+          var panes = this.getPanes();
+          panes.overlayLayer.appendChild(div);
+        };
+
+        AnimatedOverlay.prototype.draw = function() {
+          var overlayProjection = this.getProjection();
+
+          var point = overlayProjection.fromLatLngToDivPixel(this.latLng);
+          var div = this.div;
+          div.style.left = point.x + 'px';
+          div.style.top = point.y + 'px';
+        };
+
+        AnimatedOverlay.prototype.onRemove = function() {
+          this.div.parentNode.removeChild(this.div);
+          this.div = null;
+        };
+
+        map = new google.maps.Map(document.getElementById('map'), {
+          mapTypeControl: false,
+          zoomControl: false,
+          streetViewControl: false,
+          center: {lat: 59.98054607, lng: 30.2303462},
+          zoom: 10
+        });
+        
+        var markers = [{lat: 60.00089512, lng: 30.33649274},
+{lat: 59.99604264, lng: 30.52017939},
+{lat: 59.90180774, lng: 30.67073708},
+{lat: 59.94264175, lng: 30.1696176},
+{lat: 59.95839778, lng: 30.49022767},
+{lat: 60.06698534, lng: 30.14451415},
+{lat: 59.97303367, lng: 30.49627346},
+{lat: 59.91635551, lng: 30.03299413},
+{lat: 59.85092843, lng: 30.03792299},
+{lat: 60.0336331, lng: 30.55989044},
+{lat: 59.95110313, lng: 30.08177924},
+{lat: 59.95570839, lng: 30.24584654},
+{lat: 59.93618514, lng: 30.49586996},
+{lat: 60.10185745, lng: 30.33759509},
+{lat: 59.94957237, lng: 30.14378895},
+{lat: 59.77882007, lng: 30.20340371},
+{lat: 59.97713575, lng: 30.59571451},
+{lat: 60.09979767, lng: 30.29129661},
+{lat: 59.9700115, lng: 30.33737301},
+{lat: 60.04922181, lng: 30.43332566},
+{lat: 59.9998501, lng: 30.46747312},
+{lat: 59.84040762, lng: 30.42514258},
+{lat: 59.98185923, lng: 30.12719819},
+{lat: 59.99213031, lng: 30.19267425},
+{lat: 60.03074658, lng: 30.30839312},
+{lat: 59.84842522, lng: 30.63070998},
+{lat: 59.84971854, lng: 30.35129798},
+{lat: 59.83146232, lng: 30.13852278},
+{lat: 59.99399689, lng: 30.01410025},
+{lat: 60.08968425, lng: 30.33799438},
+{lat: 59.78597332, lng: 30.30570449},
+{lat: 59.90171154, lng: 30.26393348},
+{lat: 59.95942155, lng: 30.19060969},
+{lat: 59.82112328, lng: 30.20383353},
+{lat: 59.94616617, lng: 30.24905301},
+{lat: 60.05195676, lng: 30.08517011},
+{lat: 59.85982549, lng: 30.02659259},
+{lat: 59.99463139, lng: 30.36345639},
+{lat: 59.86681586, lng: 30.63359924},
+{lat: 59.85442768, lng: 30.05157072},
+{lat: 59.93191384, lng: 30.22272508},
+{lat: 60.02172999, lng: 30.09935187},
+{lat: 59.98096017, lng: 30.03061798},
+{lat: 59.80282309, lng: 30.56228935},
+{lat: 59.83398913, lng: 30.26055306},
+{lat: 60.04618148, lng: 30.19294754},
+{lat: 59.85275438, lng: 30.60576658},
+{lat: 60.05610733, lng: 30.57778653},
+{lat: 59.93976636, lng: 30.19221373},
+{lat: 59.82268788, lng: 30.06768076},
+{lat: 59.95434911, lng: 30.28038335},
+{lat: 60.08025183, lng: 30.13315754},
+{lat: 60.1054415, lng: 30.42044233},
+{lat: 59.96950559, lng: 30.47255483},
+{lat: 59.95110576, lng: 30.6089752},
+{lat: 59.7936393, lng: 30.30980051},
+{lat: 59.95993775, lng: 30.06150287},
+{lat: 60.03878514, lng: 30.29948708},
+{lat: 60.0273828, lng: 30.59696282},
+{lat: 60.06091036, lng: 30.4127817},
+{lat: 59.93793535, lng: 30.42816002},
+{lat: 59.82461418, lng: 30.56401722},
+{lat: 59.81347683, lng: 30.20836686},
+{lat: 59.85724508, lng: 30.03582677},
+{lat: 60.00644453, lng: 30.09525415},
+{lat: 60.10136859, lng: 30.27755923},
+{lat: 59.80210565, lng: 30.15671746},
+{lat: 59.85630207, lng: 30.20484147},
+{lat: 59.81272748, lng: 30.15202609},
+{lat: 59.88240521, lng: 30.64749414},
+{lat: 59.83476428, lng: 30.115099},
+{lat: 60.08534782, lng: 30.51661589},
+{lat: 59.98124887, lng: 30.0019827},
+{lat: 59.86285844, lng: 30.07759414},
+{lat: 60.02627252, lng: 30.16513846},
+{lat: 59.92728826, lng: 29.9890754},
+{lat: 59.81412729, lng: 30.56570136},
+{lat: 60.0175265, lng: 30.50220509},
+{lat: 59.81765235, lng: 30.54968861},
+{lat: 59.98538729, lng: 30.40260484},
+{lat: 59.90334678, lng: 30.5806581},
+{lat: 59.85400856, lng: 30.21523491},
+{lat: 60.02825136, lng: 30.22495886},
+{lat: 59.90955645, lng: 30.26235187},
+{lat: 59.82992588, lng: 30.49288224},
+{lat: 59.78901135, lng: 30.14840295},
+{lat: 60.00760604, lng: 30.60644438},
+{lat: 60.00760012, lng: 30.63105614},
+{lat: 59.91874455, lng: 30.51241632},
+{lat: 59.99318431, lng: 30.09562494},
+{lat: 60.0254094, lng: 30.51134707},
+{lat: 59.89545157, lng: 30.60176126},
+{lat: 60.0225107, lng: 30.03298149},
+{lat: 59.90548364, lng: 30.22746687},
+{lat: 59.88949027, lng: 30.2694675},
+{lat: 60.02961059, lng: 30.58245319},
+{lat: 60.07827068, lng: 30.3924868},
+{lat: 60.03395611, lng: 30.10476272},
+{lat: 59.82932807, lng: 30.21801713},
+{lat: 60.09064935, lng: 30.16723811},
+{lat: 60.0147742, lng: 30.36650359},
+{lat: 60.02768341, lng: 30.15563029},
+{lat: 59.95500271, lng: 30.54156228},
+{lat: 59.83135209, lng: 30.585547},
+{lat: 59.8020307, lng: 30.45987341},
+{lat: 59.80024738, lng: 30.35568378},
+{lat: 59.89618665, lng: 30.59422719},
+{lat: 59.84435532, lng: 30.09702539},
+{lat: 59.89700719, lng: 30.09621258},
+{lat: 60.0026751, lng: 30.16029067},
+{lat: 59.9722315, lng: 30.56477298},
+{lat: 59.89257858, lng: 30.6831361},
+{lat: 59.98512476, lng: 30.18494053},
+{lat: 59.93895777, lng: 30.2487908},
+{lat: 59.83045386, lng: 30.41995242},
+{lat: 60.07247874, lng: 30.42302012},
+{lat: 59.76097703, lng: 30.34444271},
+{lat: 59.94738359, lng: 30.17422937},
+{lat: 59.86178145, lng: 30.45136746},
+{lat: 60.01929154, lng: 30.07328041},
+{lat: 59.84900742, lng: 30.56946812},
+{lat: 59.82255874, lng: 30.38542846},
+{lat: 59.85200341, lng: 30.42518695},
+{lat: 59.8295964, lng: 30.07899734},
+{lat: 59.7907432, lng: 30.28394934},
+{lat: 59.88408492, lng: 30.47574762},
+{lat: 59.88020465, lng: 30.49259477},
+{lat: 59.88107851, lng: 30.20636055},
+{lat: 59.8902675, lng: 30.52846629},
+{lat: 59.89377106, lng: 30.07860652},
+{lat: 59.94964069, lng: 29.98597986},
+{lat: 59.87916108, lng: 30.23957637},
+{lat: 60.00298342, lng: 30.07308669},
+{lat: 60.02362015, lng: 30.5136735},
+{lat: 59.92316701, lng: 30.33644191},
+{lat: 59.93261343, lng: 30.64793553},
+{lat: 59.83323855, lng: 30.05276227},
+{lat: 60.04457514, lng: 30.59179054},
+{lat: 59.91978822, lng: 30.64092204},
+{lat: 59.90094373, lng: 30.43296319},
+{lat: 59.93248232, lng: 30.46020125},
+{lat: 59.79323021, lng: 30.39546144},
+{lat: 60.04832611, lng: 30.07504617},
+{lat: 59.99508231, lng: 30.10389787},
+{lat: 60.02294884, lng: 30.08570362},
+{lat: 59.90624343, lng: 30.10776286},
+{lat: 59.89316245, lng: 30.27045121},
+{lat: 60.0288656, lng: 30.54606609},
+{lat: 59.84125969, lng: 30.21378686},
+{lat: 60.09733838, lng: 30.41103317},
+{lat: 59.93732042, lng: 30.63955883},
+{lat: 59.85235506, lng: 30.58120409},
+{lat: 59.85441211, lng: 30.40218664},
+{lat: 60.10305437, lng: 30.40722374},
+{lat: 60.07346176, lng: 30.12792414},
+{lat: 59.9830476, lng: 30.44141301},
+{lat: 60.10533733, lng: 30.25989028},
+{lat: 59.88005288, lng: 30.24206471},
+{lat: 60.01531191, lng: 30.35805423},
+{lat: 60.08974671, lng: 30.27386365},
+{lat: 59.96083455, lng: 30.52679811},
+{lat: 59.91571537, lng: 30.13023245},
+{lat: 59.88994357, lng: 30.30851936},
+{lat: 59.94645444, lng: 30.30641522},
+{lat: 60.09077533, lng: 30.36685473},
+{lat: 59.98181117, lng: 30.13655023},
+{lat: 59.84113578, lng: 30.6199323},
+{lat: 59.91416158, lng: 30.34959135},
+{lat: 59.95122512, lng: 30.40792382},
+{lat: 59.97359828, lng: 30.27015601},
+{lat: 59.98357635, lng: 30.18417419},
+{lat: 59.92404229, lng: 30.14386052},
+{lat: 59.77638191, lng: 30.43930309},
+{lat: 60.07733367, lng: 30.34449814},
+{lat: 59.93537817, lng: 30.39558003},
+{lat: 60.06104104, lng: 30.56278498},
+{lat: 59.87579179, lng: 30.12133156},
+{lat: 59.93591991, lng: 30.00163027},
+{lat: 60.06862014, lng: 30.2538527},
+{lat: 59.81264173, lng: 30.50736927},
+{lat: 60.01511997, lng: 30.47736935},
+{lat: 59.99899223, lng: 30.21696111},
+{lat: 59.90000652, lng: 30.02240468},
+{lat: 59.90080332, lng: 30.12068964},
+{lat: 59.96763627, lng: 30.15075836},
+{lat: 59.96075233, lng: 30.66686177},
+{lat: 59.97789583, lng: 30.55288698},
+{lat: 59.94734713, lng: 30.50568508},
+{lat: 59.78300522, lng: 30.44160261},
+{lat: 60.07622997, lng: 30.29435342},
+{lat: 59.85800148, lng: 30.09615619},
+{lat: 60.00621672, lng: 30.37081073},
+{lat: 59.98878592, lng: 30.08426969},
+{lat: 59.8661931, lng: 30.07444232},
+{lat: 60.05083026, lng: 30.2164722},
+{lat: 59.82116311, lng: 30.12583854},
+{lat: 59.89754683, lng: 30.38807761},
+{lat: 59.98633906, lng: 30.30641138},
+{lat: 59.78554976, lng: 30.31295258},
+{lat: 59.81668996, lng: 30.56909208}];
+        
+          window.addIndex = 0;
+          var colorStyles = ["red", "orange"];
+
+          var overlays = [];
+
+          setInterval(function() {
+            if (overlays.length > addIndex) {
+              overlays[addIndex].map = null;
+            }
+
+            var overlay = new AnimatedOverlay(map, new google.maps.LatLng(markers[addIndex].lat, markers[addIndex].lng), colorStyles[addIndex % 2]);
+
+            if (overlays.length > addIndex) {
+              overlays[addIndex] = overlay;
+            } else {
+              overlays.push(overlay);
+            }
+
+            addIndex++;
+
+            if (addIndex >= markers.length) {
+              addIndex = 0;
+            }
+          }, 1000);
+
+          var realtimeOverlays = [];
+          var realtimeIndex = 0;
+
+          var connectToEventBus = function(onopen) {
+            console.log("connecting to eventbus");
+            var eb = new vertx.EventBus("http://52.90.78.153:8080/eventbus");
+
+            if (eb) {
+              eb.onopen = function () {
+                console.log("opening the socket");
+                onopen(eb);
+              };
+           
+              eb.onclose = function () {
+                console.log("closing socket");
+                window.eb = null;
+
+                setTimeout(connectToEventBus, 5000);
+              }; 
+
+              window.eb = eb;
+            } 
+          }
+
+          connectToEventBus(function(eb) {
+            eb.registerHandler("order.realtime", function (msg) {
+              console.log("recieving the message ");
+              var index = (Math.random() * 100) | 0;
+
+              var overlay = new AnimatedOverlay(map, new google.maps.LatLng(markers[index].lat, markers[index].lng), "green");
+
+              if (realtimeOverlays[realtimeIndex]) {
+                realtimeOverlays[realtimeIndex].map = null;
+              }
+
+              realtimeOverlays[realtimeIndex] = overlay;
+              realtimeIndex = (realtimeIndex + 1) % 100;
+            });
+          });
+      }
+    </script>
+    <!-- Material Design Lite -->
+    <script src="https://code.getmdl.io/1.1.3/material.min.js"></script>
+    <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.indigo-pink.min.css">
+    <!-- Material Design icon font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCBVImb4yfgpPtG2SvErICSeGHvG41ZZ58&callback=initMap" async defer></script>
+  </head>
+  <body>
+    <!-- Always shows a header, even in smaller screens. -->
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+      <header class="mdl-layout__header">
+        <div class="mdl-layout__header-row">
+          <!-- Title -->
+          <span class="mdl-layout-title">Командный Центр</span>
+          <!-- Add spacer, to align navigation to the right -->
+          <div class="mdl-layout-spacer"></div>          
+        </div>
+      </header>
+      <main class="mdl-layout__content">
+        <div id="map" class="page-content">
+         </div>
+      </main>
+    </div>
+  </body>
+</html>
