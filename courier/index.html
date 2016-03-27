@@ -71,7 +71,8 @@
 									$("#menu_id").html(menu_id);
 									$("#menu_from").html(menu_from);
 									$("#menu_to").html(menu_to);
-									$("#menu_comment").html(menu_comment); 
+									$("#menu_comment").html(menu_comment);
+									$('#header_order').html("Заказ № " + order.id); 
        						});
        						object.addClass("pending");
 	           				$("ul.orders-list").prepend(object);
@@ -267,8 +268,9 @@
       	}
       	
       	#demo-menu-lower-right{
-				position: relative;
-				left: 45%;      	
+				position: absolute;
+				right: 16px;
+				top: 15px;      	
       	}
 			
 			#menu_id, #menu_from, #menu_to, #menu_comment{
@@ -295,11 +297,11 @@
 		</div>
 		
 		    <!-- Always shows a header, even in smaller screens. -->
-	    <div class="mdl-layout mdl-layout--fixed-header order-status">
+	    <div class="mdl-layout mdl-layout--fixed-header order-status" >
 	      <header class="mdl-layout__header">
 	        <div class="mdl-layout__header-row">
 	          <!-- Title -->
-	          <span class="mdl-layout-title" align="center">Доставка</span>
+	          <span class="mdl-layout-title" align="center" id="header_order"></span>
 	          <!-- Right aligned menu below button -->
 				<button id="demo-menu-lower-right"
        				 class="mdl-button mdl-js-button mdl-button--icon">
