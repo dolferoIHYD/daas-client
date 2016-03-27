@@ -186,12 +186,16 @@
 				$(elem).addClass('completed');
 				console.log(order.id, order.status); 
 				elem = document.getElementById('icon');
-				elem.setAttribute("style", "display: initial; position: relative; left: 45%;");
+				elem.setAttribute("style", "display: block;");
 			};
 			
 			
-			
-
+			function backToOrderForm() {
+        		console.log("Returning to order form");
+				
+				$(".order-status").hide();
+       		$(".orders").css({'display': 'flex'});
+			};
 		</script>
 		<style>
 			.orders-list .mdl-list__item {
@@ -299,6 +303,7 @@
 		    <!-- Always shows a header, even in smaller screens. -->
 	    <div class="mdl-layout mdl-layout--fixed-header order-status" >
 	      <header class="mdl-layout__header">
+	        <div class="mdl-layout-icon" onclick="backToOrderForm();"><i class="material-icons" style="font-size: 2.4em">navigate_before</i></div>
 	        <div class="mdl-layout__header-row">
 	          <!-- Title -->
 	          <span class="mdl-layout-title" align="center" id="header_order"></span>
@@ -350,7 +355,7 @@
 	            </span>
 	          </li>
 	        </ul>
-	        <div id="icon" style="display: none"><i class="material-icons">offline_pin</i></div>
+	        <div id="icon" style="display: none"><img src="/images/checkered-flag.gif"></div>
 	      </main>
 	    </div>
 	</body>
