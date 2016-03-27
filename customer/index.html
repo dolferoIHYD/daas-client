@@ -69,6 +69,7 @@
           case "delivered":
             $(".courier-status-list li.courier-status-delivered").removeClass("in-progress");
             $(".courier-status-list li.courier-status-delivered").addClass("completed");
+            $(".courier-status-list li.courier-status-finish").addClass("completed");
             break;
         }
       }
@@ -167,6 +168,16 @@
       .courier-status-list .mdl-list__item.completed .mdl-list__item-primary-content {
         color: #BDBDBD;
       }
+
+      .courier-status-list .mdl-list__item.courier-status-finish {
+        display: none;
+      }
+
+      .courier-status-list .mdl-list__item.courier-status-finish.completed {
+        width: 100%;
+        display: block;
+        text-align: center;
+      }
     </style>
   </head>
   <body>
@@ -257,6 +268,9 @@
               <i class="material-icons in-progress">schedule</i>
               <i class="material-icons completed">check circle</i>
             </span>
+          </li>
+          <li class="mdl-list__item courier-status-finish">
+            <img src="/images/checkered-flag.gif">
           </li>
         </ul>
       </main>
