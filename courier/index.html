@@ -20,8 +20,13 @@
 
 		
 		<script>
-			var order;
-	   		var eb = new vertx.EventBus("http://52.90.78.153:8080/eventbus");
+	   	var order;	
+	   		
+	   	var connectToEventBus = function() {
+        		console.log("connecting to eventbus");
+        		var eb = new vertx.EventBus("http://52.90.78.153:8080/eventbus");
+        		
+        	if(eb) {
 	   		eb.onopen = function () {
 	       		console.log("opening the socket");
 	       		eb.registerHandler("order.realtime", function (msg) {
@@ -40,7 +45,22 @@
 	           				object.click( function() {
 	           					order = msg; 
        							$(".orders").hide();
-       							$(".order-status").css({'display': 'flex'}); 
+       							$(".order-status").css({'display': 'flex'});
+       							order.status = "captured";
+									order.human = true;
+									eb && eb.send("order.action", order, function (succ) {
+										console.log("Succecful!");
+									//	var elem = document.getElementById('toCaptured');
+									//	$(elem).removeClass("in-progress");
+									//	elem.removeAttribute("onclick");
+										var elem = document.getElementById('toEnroute');
+										$(elem).addClass("in-progress");
+										elem.setAttribute("onclick", "changeOrderStatusToEnroute()");
+										console.log(order.id, order.status);
+									}, function (fail) {
+										console.log(fail)
+										alert("Упс! Кажется, доставку кто-то перехватил. Может быть другую?");			
+									}); 
        						});
        						object.addClass("pending");
 	           				$("ul.orders-list").prepend(object);
@@ -50,45 +70,110 @@
 							object.addClass("not-pending");
 							$(object).removeClass("listyl");
 							$("li[data-order-id='"+msg.id+"']").replaceWith(object);
-
 							break;           		
 	           		}
 	       		});
-	   		};
+	   		 };
    		
 	   		eb.onclose = function () {
 	       		console.log("closing socket");
-	       		eb = null;
-  			};
-        
+	       		window.eb = null;
+	       		
+	       		setTimeout(connectToEventBus, 5000);
+  				};
+  				
+  				window.eb = eb;
+  			 }
+  			}
+  			
+  			connectToEventBus();
+     <!--   
 			function changeOrderStatusToCaptured() {
 				order.status = "captured";
-				eb && eb.send("order.action", order); 
+				order.human = true;
+				eb && eb.send("order.action", order, function (succ) {
+					console.log("Succecful!")
+				}, function (fail) {
+							console.log(fail)			
+				});
+				var elem = document.getElementById('toCaptured');
+				$(elem).removeClass("in-progress");
+				elem.removeAttribute("onclick");
+				elem = document.getElementById('toEnroute');
+				$(elem).addClass("in-progress");
+				elem.setAttribute("onclick", "changeOrderStatusToEnroute()");
 				console.log(order.id, order.status);    
 			};
-
+			-->
+			
 			function changeOrderStatusToEnroute() {
 				order.status = "enroute";
-				eb && eb.send("order.action", order);
+				eb && eb.send("order.action", order, function (succ) {
+					console.log("Succecful!")
+				}, function (fail) {
+							console.log(fail)			
+				});
+				var elem = document.getElementById('toEnroute');
+				$(elem).removeClass("in-progress");
+				elem.removeAttribute("onclick");
+				$(elem).addClass('completed');
+				elem = document.getElementById('toPickedup');
+				$(elem).addClass("in-progress");
+				elem.setAttribute("onclick", "changeOrderStatusToPickedUp()");
 				console.log(order.id, order.status); 
 			};
-
+			
+			
 			function changeOrderStatusToPickedUp() {
 				order.status = "pickedup";
-				eb && eb.send("order.action", order);
+				eb && eb.send("order.action", order, function (succ) {
+					console.log("Succecful!")
+				}, function (fail) {
+							console.log(fail)			
+				});
+				var elem = document.getElementById('toPickedup');
+				$(elem).removeClass("in-progress");
+				elem.removeAttribute("onclick");
+				$(elem).addClass('completed');
+				elem = document.getElementById('toDelivering');
+				$(elem).addClass("in-progress");
+				elem.setAttribute("onclick", "changeOrderStatusToDelivering()");
 				console.log(order.id, order.status); 
 			};
-
+			
+			
 			function changeOrderStatusToDelivering() {
 				order.status = "delivering";
-				eb && eb.send("order.action", order);
+				eb && eb.send("order.action", order, function (succ) {
+					console.log("Succecful!")
+				}, function (fail) {
+							console.log(fail)			
+				});
+				var elem = document.getElementById('toDelivering');
+				$(elem).removeClass("in-progress");
+				elem.removeAttribute("onclick");
+				$(elem).addClass('completed');
+				elem = document.getElementById('toDelivered');
+				$(elem).addClass("in-progress");
+				elem.setAttribute("onclick", "changeOrderStatusToDelivered()");
 				console.log(order.id, order.status); 
 			};
-
+			
+			
 			function changeOrderStatusToDelivered() {
 				order.status = "delivered";
-				eb && eb.send("order.action", order);
+				eb && eb.send("order.action", order, function (succ) {
+					console.log("Succecful!")
+				}, function (fail) {
+							console.log(fail)			
+				});
+				var elem = document.getElementById('toDelivered');
+				$(elem).removeClass("in-progress");
+				elem.removeAttribute("onclick");
+				$(elem).addClass('completed');
 				console.log(order.id, order.status); 
+				elem = document.getElementById('icon');
+				elem.setAttribute("style", "display: initial; position: relative; left: 45%;");
 			};
 		</script>
 		<style>
@@ -123,6 +208,38 @@
 			.order-status{
 				display: none;			
 			}
+			
+			.courier-status-list .material-icons {
+        		display: none;
+        		position: relative;
+        		
+      	}
+      	
+      	.in-progress{
+				     color: white;
+				     background-color: #40C4FF;
+				     border-color: black;
+				   
+      	}
+      	
+      	.courier-status-list .mdl-list__item.completed .material-icons.completed {
+        		color: #4CAF50;
+        		display: initial;
+      	}
+      	
+      	#icon{
+      		text-align: center;
+      		align-self: center;
+      	}
+      	
+      	.courier-status-list .mdl-list__item.completed .mdl-list__item-primary-content {
+        		color: #BDBDBD;
+      	}
+      	
+      	.courier-status-list .mdl-list__item-secondary-action {
+        		width: 24px;
+      	}
+
 		</style>
 	</head>
 	<body>
@@ -150,37 +267,38 @@
 	      </header>
 	      <main class="mdl-layout__content">
 	        <ul class="demo-list-control mdl-list courier-status-list">
-	          <li onclick="changeOrderStatusToCaptured()" class="mdl-list__item courier-status-pending completed">
+	          <li class="mdl-list__item courier-status-captured completed" id="toCaptured">
 	            <span class="mdl-list__item-primary-content">Заказ принял</span>
 	            <span class="mdl-list__item-secondary-action">
 	              <i class="material-icons completed">check circle</i>
 	            </span>
 	          </li>
-	          <li onclick="changeOrderStatusToEnroute()" class="mdl-list__item courier-status-captured in-progress">
+	          <li class="mdl-list__item courier-status-enroute" id="toEnroute">
 	            <span class="mdl-list__item-primary-content">Выехал на заказ</span>
 	            <span class="mdl-list__item-secondary-action">
 	              <i class="material-icons completed">check circle</i>
 	            </span>
 	          </li>
-	          <li onclick="changeOrderStatusToPickedUp()" class="mdl-list__item courier-status-enroute">
+	          <li class="mdl-list__item courier-status-pickedup" id="toPickedup">
 	            <span class="mdl-list__item-primary-content">Подобрал посылку</span>
 	            <span class="mdl-list__item-secondary-action">
 	              <i class="material-icons completed">check circle</i>
 	            </span>
 	          </li>
-	          <li onclick="changeOrderStatusToDelivering()" class="mdl-list__item courier-status-pickedup">
+	          <li class="mdl-list__item courier-status-delivering" id="toDelivering">
 	            <span class="mdl-list__item-primary-content">Выехал к получателю</span>
 	            <span class="mdl-list__item-secondary-action">
 	              <i class="material-icons completed">check circle</i>
 	            </span>
 	          </li>
-	          <li onclick="changeOrderStatusToDelivered()" class="mdl-list__item courier-status-delivering">
+	          <li class="mdl-list__item courier-status-delivered" id="toDelivered">
 	            <span class="mdl-list__item-primary-content">Передал получателю</span>
 	            <span class="mdl-list__item-secondary-action">
 	              <i class="material-icons completed">check circle</i>
 	            </span>
 	          </li>
 	        </ul>
+	        <div id="icon" style="display: none"><i class="material-icons">offline_pin</i></div>
 	      </main>
 	    </div>
 	</body>
