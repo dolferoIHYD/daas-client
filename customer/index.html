@@ -87,6 +87,7 @@
           lastOrder = order;
 
           $(".new-order").hide();
+          $(".waiting-for-courier #orderId").text(lastOrder.id);
           $(".waiting-for-courier").css({'display': 'flex'});
 
           console.log("order.realtime.specific." + order.id);
@@ -211,7 +212,7 @@
         <div class="mdl-layout-icon" onclick="backToOrderForm();"><i class="material-icons" style="font-size: 2.4em">navigate_before</i></div>
         <div class="mdl-layout__header-row">
           <!-- Title -->
-          <span class="mdl-layout-title" align="center">Ожидание курьера</span>
+          <span class="mdl-layout-title" align="center">Статус доставки №<span id="orderId"></span></span>
         </div>
       </header>
       <main class="mdl-layout__content">
