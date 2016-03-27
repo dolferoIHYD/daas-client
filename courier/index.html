@@ -21,6 +21,62 @@
 		<script>
 	   	var order;	
 
+	   	var displayOrder = function(msg) {
+	   		//	console.log("recieving the message " + msg.status + msg.id);
+           	//	console.log(JSON.stringify(msg));
+       		var object = $("<li class='mdl-list__item mdl-list__item--two-line listyl' data-order-id='"	+ msg.id + "'>"
+	       		+   "<span class='mdl-list__item-primary-content'>" 
+	       		+     "<i class='material-icons mdl-list__item-avatar'>location_on</i>"
+	       		+     "<span>Заказ №" + msg.id + "</span>" 
+	       		+     "<span class='mdl-list__item-sub-title'>" + "Откуда: " + msg.from	 + "</span>" 
+	       		+   "</span>" 
+	       		+ "</li>");
+
+       		switch(msg.status) {
+       			case "pending":
+       				object.click( function() {
+       					order = msg; 
+						$(".orders").hide();
+						$(".order-status").css({'display': 'flex'});
+						order.status = "captured";
+						order.human = true;
+						eb && eb.send("order.action", order, function (succ) {
+							console.log("Succecful!");
+						//	var elem = document.getElementById('toCaptured');
+						//	$(elem).removeClass("in-progress");
+						//	elem.removeAttribute("onclick");
+							var elem = document.getElementById('toEnroute');
+							$(elem).addClass("in-progress");
+							elem.setAttribute("onclick", "changeOrderStatusToEnroute()");
+							console.log(order.id, order.status);
+						}, function (fail) {
+							console.log(fail)
+							alert("Упс! Кажется, доставку кто-то перехватил. Может быть другую?");			
+						});
+						
+						var menu_id = "<b>Заказ № </b>" + order.id + "<hr>";
+						var menu_from = "<b>Откуда: </b>" + order.from + "<hr>";
+						var menu_to = "<b>Куда: </b>" + order.to + "<hr>";
+						var menu_comment = order.comment;
+
+				
+						$("#menu_id").html(menu_id);
+						$("#menu_from").html(menu_from);
+						$("#menu_to").html(menu_to);
+						$("#menu_comment").html(menu_comment);
+						$('#header_order').html("Заказ № " + order.id); 
+					});
+					object.addClass("pending");
+       				$("ul.orders-list").prepend(object);
+       				break;	
+
+				default:
+					object.addClass("not-pending");
+					$(object).removeClass("listyl");
+					$("li[data-order-id='"+msg.id+"']").replaceWith(object);
+					break;           		
+       		}
+	   	};
 	   		
 	   	var connectToEventBus = function() {
         		console.log("connecting to eventbus");
@@ -29,61 +85,15 @@
         	if(eb) {
 	   		eb.onopen = function () {
 	       		console.log("opening the socket");
-	       		eb.registerHandler("order.realtime", function (msg) {
-	           	//	console.log("recieving the message " + msg.status + msg.id);
-	           	//	console.log(JSON.stringify(msg));
-	           		var object = $("<li class='mdl-list__item mdl-list__item--two-line listyl' data-order-id='"	+ msg.id + "'>"
-	           		+   "<span class='mdl-list__item-primary-content'>" 
-	           		+     "<i class='material-icons mdl-list__item-avatar'>location_on</i>"
-	           		+     "<span>Заказ №" + msg.id + "</span>" 
-	           		+     "<span class='mdl-list__item-sub-title'>" + "Откуда: " + msg.from	 + "</span>" 
-	           		+   "</span>" 
-	           		+ "</li>");
+	       		eb.send("order.query.pendings", {}, function (orders) {
+	       			console.log("received pending orders", orders);
+	       			for (var i = 0; i < orders.length; i++) {
+	       				displayOrder(orders[i]);
+	       			}
 
-	           		switch(msg.status) {
-	           			case "pending":
-	           				object.click( function() {
-	           					order = msg; 
-       							$(".orders").hide();
-       							$(".order-status").css({'display': 'flex'});
-       							order.status = "captured";
-									order.human = true;
-									eb && eb.send("order.action", order, function (succ) {
-										console.log("Succecful!");
-									//	var elem = document.getElementById('toCaptured');
-									//	$(elem).removeClass("in-progress");
-									//	elem.removeAttribute("onclick");
-										var elem = document.getElementById('toEnroute');
-										$(elem).addClass("in-progress");
-										elem.setAttribute("onclick", "changeOrderStatusToEnroute()");
-										console.log(order.id, order.status);
-									}, function (fail) {
-										console.log(fail)
-										alert("Упс! Кажется, доставку кто-то перехватил. Может быть другую?");			
-									});
-									
-									var menu_id = "<b>Заказ № </b>" + order.id + "<hr>";
-									var menu_from = "<b>Откуда: </b>" + order.from + "<hr>";
-									var menu_to = "<b>Куда: </b>" + order.to + "<hr>";
-									var menu_comment = order.comment;
-			
-							
-									$("#menu_id").html(menu_id);
-									$("#menu_from").html(menu_from);
-									$("#menu_to").html(menu_to);
-									$("#menu_comment").html(menu_comment);
-									$('#header_order').html("Заказ № " + order.id); 
-       						});
-       						object.addClass("pending");
-	           				$("ul.orders-list").prepend(object);
-	           				break;	
-
-						default:
-							object.addClass("not-pending");
-							$(object).removeClass("listyl");
-							$("li[data-order-id='"+msg.id+"']").replaceWith(object);
-							break;           		
-	           		}
+	       			eb.registerHandler("order.realtime", displayOrder);
+	       		}, function(err) {
+	       			console.log("error", err);
 	       		});
 	   		 };
    		
@@ -219,11 +229,11 @@
 			
 			.not-pending,  
 			.mdl-list__item--two-line.not-pending .mdl-list__item-primary-content .mdl-list__item-sub-title {
-				color: #E0E0E0;			
+				color: #B0B0B0;			
 			}
 
 			.not-pending .material-icons.mdl-list__item-avatar {
-				color: #E0E0E0;
+				color: #B0B0B0;
 				background-color: #FFF;
 			}
 
@@ -264,7 +274,7 @@
       	}
       	
       	.courier-status-list .mdl-list__item.completed .mdl-list__item-primary-content {
-        		color: #BDBDBD;
+        		color: #B0B0B0;
       	}
       	
       	.courier-status-list .mdl-list__item-secondary-action {
