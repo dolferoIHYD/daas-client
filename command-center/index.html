@@ -361,7 +361,7 @@
                 console.log("closing socket");
                 window.eb = null;
 
-                setTimeout(connectToEventBus, 5000);
+                setTimeout(function() {connectToEventBus(onopen);}, 5000);
               }; 
 
               window.eb = eb;
