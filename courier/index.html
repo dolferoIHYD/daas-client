@@ -205,6 +205,18 @@
 				
 				$(".order-status").hide();
        		$(".orders").css({'display': 'flex'});
+       		
+       		elem = document.getElementById('icon');
+       		elem.setAttribute("style", "display: none;");
+       		
+       		$('#toEnroute').removeClass('completed');
+       		$('#toEnroute').addClass('in-progress');       		
+       		$('#toPickedup').removeClass('completed');
+
+       		$('#toDelivering').removeClass('completed');
+
+       		$('#toDelivered').removeClass('completed');
+       		 
 			};
 		</script>
 		<style>
