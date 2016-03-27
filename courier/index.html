@@ -34,9 +34,9 @@
 	           	//	console.log(JSON.stringify(msg));
 	           		var object = $("<li class='mdl-list__item mdl-list__item--two-line listyl' data-order-id='"	+ msg.id + "'>"
 	           		+   "<span class='mdl-list__item-primary-content'>" 
-	           		+     "<i class='material-icons'>location_on</i>"
-	           		+     "<span>" + msg.from + "</span>" 
-	           		+     "<span class='mdl-list__item-sub-title'>" + "\tСтатус: " + msg.status + "</span>" 
+	           		+     "<i class='material-icons mdl-list__item-avatar'>location_on</i>"
+	           		+     "<span>Заказ №" + msg.id + "</span>" 
+	           		+     "<span class='mdl-list__item-sub-title'>" + "Откуда: " + msg.from	 + "</span>" 
 	           		+   "</span>" 
 	           		+ "</li>");
 
@@ -177,7 +177,10 @@
 			};
 		</script>
 		<style>
-		
+			.orders-list .mdl-list__item {
+
+			}
+
 			.mdl-list__item-sub-title {
 				color: inherit;			
 			}
@@ -186,10 +189,6 @@
 					color: black;			 
 			 }
 			
-			.demo-list-two {
-  				width: 300px;
-			}
-			
 			a.fill-div {
    			display: block;
     			height: 100%;
@@ -197,11 +196,22 @@
     			text-decoration: none;
 			}
 			
-			.not-pending{
-				color: grey;			
+			.not-pending,  
+			.mdl-list__item--two-line.not-pending .mdl-list__item-primary-content .mdl-list__item-sub-title {
+				color: #E0E0E0;			
+			}
+
+			.not-pending .material-icons.mdl-list__item-avatar {
+				color: #E0E0E0;
+				background-color: #FFF;
+			}
+
+			.pending .material-icons.mdl-list__item-avatar {
+				color: #757575;
+				background-color: #FFF;
 			}
 			
-			.pending{
+			.pending {
 				color: black;			
 			}
 			
@@ -249,12 +259,11 @@
 				<div class="mdl-layout__header-row">
 					<!-- Title -->
 					<span class="mdl-layout-title" align="center">Заказы</span>
-					<!-- Add spacer, to align navigation to the right -->
-					<div class="mdl-layout-spacer"></div>
 				</div>
 			</header>
-			
-			<ul class="demo-list-two mdl-list orders-list"></ul>
+			<main class="mdl-layout__content">
+				<ul class="mdl-list orders-list"></ul>
+			</main>
 		</div>
 		
 		    <!-- Always shows a header, even in smaller screens. -->
