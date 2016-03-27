@@ -20,6 +20,7 @@
 		
 		<script>
 	   	var order;	
+
 	   		
 	   	var connectToEventBus = function() {
         		console.log("connecting to eventbus");
@@ -59,7 +60,18 @@
 									}, function (fail) {
 										console.log(fail)
 										alert("Упс! Кажется, доставку кто-то перехватил. Может быть другую?");			
-									}); 
+									});
+									
+									var menu_id = "<b>Заказ № </b>" + order.id + "<hr>";
+									var menu_from = "<b>Откуда: </b>" + order.from + "<hr>";
+									var menu_to = "<b>Куда: </b>" + order.to + "<hr>";
+									var menu_comment = order.comment;
+			
+							
+									$("#menu_id").html(menu_id);
+									$("#menu_from").html(menu_from);
+									$("#menu_to").html(menu_to);
+									$("#menu_comment").html(menu_comment); 
        						});
        						object.addClass("pending");
 	           				$("ul.orders-list").prepend(object);
@@ -82,6 +94,7 @@
   				};
   				
   				window.eb = eb;
+  				window.order = order;
   			 }
   			}
   			
@@ -174,6 +187,10 @@
 				elem = document.getElementById('icon');
 				elem.setAttribute("style", "display: initial; position: relative; left: 45%;");
 			};
+			
+			
+			
+
 		</script>
 		<style>
 			.orders-list .mdl-list__item {
@@ -248,7 +265,19 @@
       	.courier-status-list .mdl-list__item-secondary-action {
         		width: 24px;
       	}
-
+      	
+      	#demo-menu-lower-right{
+				position: relative;
+				left: 45%;      	
+      	}
+			
+			#menu_id, #menu_from, #menu_to, #menu_comment{
+				color: black;							
+			}
+			
+			.order_info{
+				padding: 10px;			
+			}
 		</style>
 	</head>
 	<body>
@@ -271,6 +300,19 @@
 	        <div class="mdl-layout__header-row">
 	          <!-- Title -->
 	          <span class="mdl-layout-title" align="center">Доставка</span>
+	          <!-- Right aligned menu below button -->
+				<button id="demo-menu-lower-right"
+       				 class="mdl-button mdl-js-button mdl-button--icon">
+  					<i class="material-icons">info</i>
+				</button>
+
+				<ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect order_info"
+    				 for="demo-menu-lower-right">
+  					<li id="menu_id"></li>
+  					<li id="menu_from"></li>
+  					<li id="menu_to"></li>
+  					<li id="menu_comment"></li>
+				</ul>
 	        </div>
 	      </header>
 	      <main class="mdl-layout__content">
