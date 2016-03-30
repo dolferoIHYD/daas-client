@@ -74,10 +74,22 @@
         }
       }
 
+      function showAllOrders() {
+        $(".mdl-layout").hide();
+        $(".submitted-orders").css({'display': 'flex'});
+      }
+
+      function showNewOrderForm() {
+        $(".submitted-orders").hide();
+        $(".new-order .mdl-textfield__input").val("");
+        $(".new-order .mdl-textfield.is-dirty").removeClass("is-dirty");
+        $(".new-order").css({'display': 'flex'});
+      }
+
       function submitNewOrder() {
-        var fromValue = getFieldValue("fromField");
-        var toValue = getFieldValue("toField");
-        var commentValue = getFieldValue("commentField");
+        var fromValue = $("#fromField").val();
+        var toValue = $("#toField").val();
+        var commentValue = $("#commentField").val();
 
         var order = {from: fromValue, to: toValue, comment: commentValue};
 
@@ -111,13 +123,16 @@
           eb.unregisterHandler("order.realtime.specific." + lastOrder.id, orderStatusUpdateHandler);
         }
 
-        $("#fromField").val("");
-        $("#toField").val("");
-        $("#commentField").val("");
+        $(".new-order .mdl-textfield__input").val("");
+        $(".new-order .mdl-textfield.is-dirty").removeClass("is-dirty");
         $(".new-order").css({'display': 'flex'});
       }
     </script>
     <style>
+      .new-order {
+        display: none;
+      }
+
       .waiting-for-courier {
         display: none;
       }
@@ -178,12 +193,40 @@
         display: block;
         text-align: center;
       }
+
+      .new-order .mdl-layout__drawer-button {
+        padding: 11px 0 11px 0px;
+        height: 48px;
+        margin: 5px 0 0 10px;
+        box-sizing: border-box;
+        outline: none;
+      }
     </style>
   </head>
   <body>
     <!-- Always shows a header, even in smaller screens. -->
+    <div class="mdl-layout mdl-layout--fixed-header submitted-orders">
+      <header class="mdl-layout__header">
+        <div class="mdl-layout__header-row">
+          <!-- Title -->
+          <span class="mdl-layout-title">Оформленные заказы</span>
+          <div class="mdl-layout-spacer"></div>
+          <button class="mdl-button mdl-js-button mdl-button--icon" onclick="showNewOrderForm()">
+            <i class="material-icons">add</i>
+          </button>
+        </div>
+      </header>
+      <main class="mdl-layout__content">
+        <ul class="mdl-list orders-list"></ul>
+      </main>
+    </div>
+
+    <!-- Always shows a header, even in smaller screens. -->
     <div class="mdl-layout mdl-layout--fixed-header new-order">
       <header class="mdl-layout__header">
+        <div aria-expanded="false" role="button" tabindex="0" class="mdl-layout__drawer-button" onclick="showAllOrders()">
+          <i class="material-icons">navigate_before</i>
+        </div>
         <div class="mdl-layout__header-row">
           <!-- Title -->
           <span class="mdl-layout-title">Оформить доставку</span>
@@ -220,7 +263,9 @@
     <!-- Always shows a header, even in smaller screens. -->
     <div class="mdl-layout mdl-layout--fixed-header waiting-for-courier">
       <header class="mdl-layout__header">
-        <div class="mdl-layout-icon" onclick="backToOrderForm();"><i class="material-icons" style="font-size: 2.4em">navigate_before</i></div>
+        <div class="mdl-layout-icon" onclick="backToOrderForm();">
+          <i class="material-icons" style="font-size: 2.4em">navigate_before</i>
+        </div>
         <div class="mdl-layout__header-row">
           <!-- Title -->
           <span class="mdl-layout-title" align="center">Статус доставки №<span id="orderId"></span></span>
@@ -275,5 +320,24 @@
         </ul>
       </main>
     </div>
+    <script>
+      // here we should make a call to getorders from server
+      // for now just have some mock responses
+
+      setTimeout(function() {
+        for (var i = 0; i < 5; i++) {
+          var order = {id: i, status: "pending"};
+          var orderElement = $("<li class='mdl-list__item mdl-list__item--two-line listyl' data-order-id='"  + order.id + "'>"
+            +   "<span class='mdl-list__item-primary-content'>" 
+            +     "<i class='material-icons mdl-list__item-avatar'>location_on</i>"
+            +     "<span>Заказ №" + order.id + "</span>" 
+            +     "<span class='mdl-list__item-sub-title'>" + "Статус: " + order.status  + "</span>" 
+            +   "</span>" 
+            + "</li>");
+
+          $(".submitted-orders .orders-list").append(orderElement);
+        }
+      }, 100);
+    </script>
   </body>
 </html>
