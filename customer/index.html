@@ -13,13 +13,14 @@
     <script type="text/javascript">
       var lastOrder = null;
 
-      var connectToEventBus = function() {
+      var connectToEventBus = function(onopen) {
         console.log("connecting to eventbus");
         var eb = new vertx.EventBus("http://52.90.78.153:8080/eventbus");
 
         if (eb) {
           eb.onopen = function () {
             console.log("opening the socket");
+            onopen && onopen(eb);
           };
        
           eb.onclose = function () {
@@ -33,7 +34,9 @@
         } 
       }
 
-      connectToEventBus();
+      connectToEventBus(function() {
+        showAllOrders();
+      });
 
       function getFieldValue(field) {
         var element = document.getElementById(field); 
@@ -44,39 +47,67 @@
         console.log("Driver responded", order);
 
         lastOrder = order;
-        
+       
+        $(".courier-status-list li").removeClass("in-progress completed");
+ 
         switch (order.status) {
-          case "captured":
-            $(".courier-status-list li.courier-status-captured").removeClass("in-progress");
-            $(".courier-status-list li.courier-status-captured").addClass("completed");
-            $(".courier-status-list li.courier-status-enroute").addClass("in-progress");
-            break;
-          case "enroute":
-            $(".courier-status-list li.courier-status-enroute").removeClass("in-progress");
-            $(".courier-status-list li.courier-status-enroute").addClass("completed");
-            $(".courier-status-list li.courier-status-pickedup").addClass("in-progress");
-            break;
-          case "pickedup":
-            $(".courier-status-list li.courier-status-pickedup").removeClass("in-progress");
-            $(".courier-status-list li.courier-status-pickedup").addClass("completed");
-            $(".courier-status-list li.courier-status-delivering").addClass("in-progress");
-            break;
-          case "delivering":
-            $(".courier-status-list li.courier-status-delivering").removeClass("in-progress");
-            $(".courier-status-list li.courier-status-delivering").addClass("completed");
-            $(".courier-status-list li.courier-status-delivered").addClass("in-progress");
-            break;
           case "delivered":
             $(".courier-status-list li.courier-status-delivered").removeClass("in-progress");
             $(".courier-status-list li.courier-status-delivered").addClass("completed");
             $(".courier-status-list li.courier-status-finish").addClass("completed");
-            break;
+          case "delivering":
+            $(".courier-status-list li.courier-status-delivering").removeClass("in-progress");
+            $(".courier-status-list li.courier-status-delivering").addClass("completed");
+            $(".courier-status-list li.courier-status-delivered:not(.completed)").addClass("in-progress");
+          case "pickedup":
+            $(".courier-status-list li.courier-status-pickedup").removeClass("in-progress");
+            $(".courier-status-list li.courier-status-pickedup").addClass("completed");
+            $(".courier-status-list li.courier-status-delivering:not(.completed)").addClass("in-progress");
+          case "enroute":
+            $(".courier-status-list li.courier-status-enroute").removeClass("in-progress");
+            $(".courier-status-list li.courier-status-enroute").addClass("completed");
+            $(".courier-status-list li.courier-status-pickedup:not(.completed)").addClass("in-progress");
+          case "captured":
+            $(".courier-status-list li.courier-status-captured").removeClass("in-progress");
+            $(".courier-status-list li.courier-status-captured").addClass("completed");
+            $(".courier-status-list li.courier-status-enroute:not(.completed)").addClass("in-progress");
+          case "pending":
+            $(".courier-status-list li.courier-status-pending").addClass("completed");
+            $(".courier-status-list li.courier-status-captured:not(.completed)").addClass("in-progress");
         }
       }
 
       function showAllOrders() {
         $(".mdl-layout").hide();
         $(".submitted-orders").css({'display': 'flex'});
+
+        eb.send("order.query.pendings", {}, function (orders) {
+          console.log("received pending orders", orders);
+          for (var i = 0; i < orders.length; i++) {
+            displayOrder(orders[i]);
+          }
+
+          eb.registerHandler("order.realtime", displayOrder);
+        }, function(err) {
+          console.log("error", err);
+        });
+      }
+
+      function displayOrder(order) {
+        console.log("displayOrder");
+        var orderElement = $("<li class='mdl-list__item mdl-list__item--two-line listyl' data-order-id='"  + order.id + "'>"
+            +   "<span class='mdl-list__item-primary-content'>"
+            +     "<i class='material-icons mdl-list__item-avatar'>location_on</i>"
+            +     "<span>Заказ №" + order.id + "</span>"
+            +     "<span class='mdl-list__item-sub-title'>" + "Статус: " + order.status  + "</span>"
+            +   "</span>"
+            + "</li>");
+
+        orderElement.click(function() {
+          viewOrderStatus(order);          
+        });
+
+        $(".submitted-orders .orders-list").append(orderElement); 
       }
 
       function showNewOrderForm() {
@@ -97,18 +128,27 @@
         eb && eb.send("order.create", order, function (order) {
           console.log("Order created ", order);
 
-          lastOrder = order;
-
-          $(".new-order").hide();
-          $(".waiting-for-courier #orderId").text(lastOrder.id);
-          $(".waiting-for-courier").css({'display': 'flex'});
-
-          console.log("order.realtime.specific." + order.id);
-
-          eb.registerHandler("order.realtime.specific." + order.id, orderStatusUpdateHandler);
+          viewOrderStatus(order);
         }, function (error) {
           console.log("Failed to create order", error);
         });
+      }
+
+      function viewOrderStatus(order) {
+        if (lastOrder && lastOrder.id) {
+          eb.unregisterHandler("order.realtime.specific." + lastOrder.id, orderStatusUpdateHandler);
+        }
+
+        lastOrder = order;
+
+        $(".mdl-layout").hide();
+        $(".waiting-for-courier #orderId").text(order.id);
+        $(".waiting-for-courier").css({'display': 'flex'});
+
+        console.log("order.realtime.specific." + order.id);
+
+        orderStatusUpdateHandler(order);
+        eb.registerHandler("order.realtime.specific." + order.id, orderStatusUpdateHandler);
       }
 
       function backToOrderForm() {
@@ -263,7 +303,7 @@
     <!-- Always shows a header, even in smaller screens. -->
     <div class="mdl-layout mdl-layout--fixed-header waiting-for-courier">
       <header class="mdl-layout__header">
-        <div class="mdl-layout-icon" onclick="backToOrderForm();">
+        <div class="mdl-layout-icon" onclick="showAllOrders();">
           <i class="material-icons" style="font-size: 2.4em">navigate_before</i>
         </div>
         <div class="mdl-layout__header-row">
@@ -320,24 +360,5 @@
         </ul>
       </main>
     </div>
-    <script>
-      // here we should make a call to getorders from server
-      // for now just have some mock responses
-
-      setTimeout(function() {
-        for (var i = 0; i < 5; i++) {
-          var order = {id: i, status: "pending"};
-          var orderElement = $("<li class='mdl-list__item mdl-list__item--two-line listyl' data-order-id='"  + order.id + "'>"
-            +   "<span class='mdl-list__item-primary-content'>" 
-            +     "<i class='material-icons mdl-list__item-avatar'>location_on</i>"
-            +     "<span>Заказ №" + order.id + "</span>" 
-            +     "<span class='mdl-list__item-sub-title'>" + "Статус: " + order.status  + "</span>" 
-            +   "</span>" 
-            + "</li>");
-
-          $(".submitted-orders .orders-list").append(orderElement);
-        }
-      }, 100);
-    </script>
   </body>
 </html>
